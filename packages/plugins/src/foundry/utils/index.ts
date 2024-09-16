@@ -1312,8 +1312,8 @@ export const assertValidVersions = async (
   )
 
   const libraryVersion = output.returns.libraryVersion.value
-    // The raw string is wrapped in two sets of quotes, so we remove the outer quotes here.
-    .slice(1, -1)
+    // If the version number contains any quotes we remove them
+    .replace(/"/g, '');
   const forkInstalled = output.returns.forkInstalled.value
 
   if (libraryVersion !== CONTRACTS_LIBRARY_VERSION) {
