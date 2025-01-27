@@ -1,57 +1,49 @@
 queue_rules:
-  - name: default
-    conditions: []
+  - name: duplicated default from Automatic merge on approval (main)
+    queue_conditions:
+      - and:
+          - "base=main"
+          - "#review-threads-unresolved=0"
+          - "#approved-reviews-by>=1"
+          - "#changes-requested-reviews-by=0"
+          - "label!=do-not-merge"
+          - "label!=mergify-ignore"
+          - "check-success=ci/circleci: plugins-tests"
+          - "check-success=ci/circleci: contracts-tests"
+          - "check-success=ci/circleci: core-tests"
+          - "check-success=ci/circleci: demo-tests"
+          - "check-success=ci/circleci: executor-tests"
+          - "check-success=ci/circleci: yarn-monorepo"
+          - "check-success=license/cla"
+    merge_conditions: []
+    merge_method: merge
+  - name: duplicated default from Automatic merge on approval (develop)
+    queue_conditions:
+      - and:
+          - "base=develop"
+          - "#review-threads-unresolved=0"
+          - "#approved-reviews-by>=1"
+          - "#changes-requested-reviews-by=0"
+          - "label!=do-not-merge"
+          - "label!=mergify-ignore"
+          - "check-success=ci/circleci: plugins-tests"
+          - "check-success=ci/circleci: contracts-tests"
+          - "check-success=ci/circleci: core-tests"
+          - "check-success=ci/circleci: demo-tests"
+          - "check-success=ci/circleci: executor-tests"
+          - "check-success=ci/circleci: yarn-monorepo"
+          - "check-success=license/cla"
+    merge_conditions: []
+    merge_method: squash
 
 pull_request_rules:
-  - name: Automatic merge on approval (main)
-    conditions:
-      - and:
-        - "base=main"
-        - "#review-threads-unresolved=0"
-        - "#approved-reviews-by>=1"
-        - "#changes-requested-reviews-by=0"
-        - "label!=do-not-merge"
-        - "label!=mergify-ignore"
-        - "check-success=ci/circleci: plugins-tests"
-        - "check-success=ci/circleci: contracts-tests"
-        - "check-success=ci/circleci: core-tests"
-        - "check-success=ci/circleci: demo-tests"
-        - "check-success=ci/circleci: executor-tests"
-        - "check-success=ci/circleci: yarn-monorepo"
-        - "check-success=license/cla"
-    actions:
-      queue:
-        name: default
-        method: merge
-
-  - name: Automatic merge on approval (develop)
-    conditions:
-      - and:
-        - "base=develop"
-        - "#review-threads-unresolved=0"
-        - "#approved-reviews-by>=1"
-        - "#changes-requested-reviews-by=0"
-        - "label!=do-not-merge"
-        - "label!=mergify-ignore"
-        - "check-success=ci/circleci: plugins-tests"
-        - "check-success=ci/circleci: contracts-tests"
-        - "check-success=ci/circleci: core-tests"
-        - "check-success=ci/circleci: demo-tests"
-        - "check-success=ci/circleci: executor-tests"
-        - "check-success=ci/circleci: yarn-monorepo"
-        - "check-success=license/cla"
-    actions:
-      queue:
-        name: default
-        method: squash
-
   - name: Add merge train label
     conditions:
       - "queue-position >= 0"
     actions:
       comment:
-          message: |
-            This PR has been added to the merge queue, and will be merged soon.
+        message: |
+          This PR has been added to the merge queue, and will be merged soon.
       label:
         add:
           - on-merge-train
@@ -69,7 +61,8 @@ pull_request_rules:
       - conflict
     actions:
       comment:
-        message: Hey @{{author}}! This PR has merge conflicts. Please fix them before continuing review.
+        message: Hey @{{author}}! This PR has merge conflicts. Please fix them before
+          continuing review.
       label:
         add:
           - conflict
@@ -101,9 +94,13 @@ pull_request_rules:
   - name: Nag changesets
     conditions:
       - and:
-        - 'files~=\.((?<!\.spec\.)ts|js|sol)$'
-        - '-files~=^\.changeset/(.*)\.md'
+          - 'files~=\.((?<!\.spec\.)ts|js|sol)$'
+          - '-files~=^\.changeset/(.*)\.md'
     actions:
       comment:
         message: |
           This PR changes implementation code, but doesn't include a changeset. Did you forget to add one?
+  - name: Automatic merge on approval (develop) + Automatic merge on approval (main)
+    conditions: []
+    actions:
+      queue:
